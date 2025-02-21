@@ -6,10 +6,11 @@ from config.settings import (
     ALLOWED_METHODS,
     ALLOWED_HEADERS,
     ALLOW_CREDENTIALS,
+    DEBUG,
 )
 from src.api.v1.routers import api_v1_router
 
-app = FastAPI(title="Checkbox challenge")
+app = FastAPI(debug=DEBUG, docs_url="/api/docs/", title="Checkbox challenge")
 
 
 app.add_middleware(
