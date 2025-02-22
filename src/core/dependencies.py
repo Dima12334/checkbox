@@ -1,7 +1,6 @@
-from datetime import datetime
-
+from datetime import datetime, timezone
 from fastapi import Depends
-from fastapi.security import HTTPBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,15 +13,16 @@ from src.users.models import User
 
 
 async def get_current_user(
-    token: str = Depends(HTTPBearer()), db: AsyncSession = Depends(get_async_session)
+    token: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
+    db: AsyncSession = Depends(get_async_session),
 ) -> User:
     try:
-        payload = await decode_jwt(token)
+        payload = await decode_jwt(token.credentials)
     except JWTError:
         raise InvalidTokenException()
 
     payload = JWTTokenPayloadSchema(**payload)
-    if payload.exp <= int(round(datetime.utcnow().timestamp())):
+    if payload.exp.replace(tzinfo=timezone.utc) <= datetime.now(timezone.utc):
         raise ExpiredTokenException()
 
     user_service = UserService()

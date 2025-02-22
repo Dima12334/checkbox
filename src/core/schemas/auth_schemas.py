@@ -10,7 +10,7 @@ class JWTTokenSchema(BaseModel):
 
 class JWTTokenPayloadSchema(BaseModel):
     id: str
-    exp: datetime | int
+    exp: datetime
 
 
 class SignInSchema(BaseModel):
@@ -23,3 +23,4 @@ class SignUpSchema(BaseModel):
     password: str = Field(max_length=UserConstants.PASSWORD_MAX_LENGTH)
     first_name: str = Field(max_length=UserConstants.FIRST_NAME_MAX_LENGTH)
     last_name: str = Field(max_length=UserConstants.LAST_NAME_MAX_LENGTH)
+    company_name: str = Field(max_length=UserConstants.COMPANY_NAME_MAX_LENGTH)
