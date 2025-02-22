@@ -8,7 +8,7 @@ from config.settings import (
     ALLOW_CREDENTIALS,
     DEBUG,
 )
-from src.api.v1.routers import api_v1_router
+from src.api.v1.v1_routers import api_v1_router
 
 app = FastAPI(debug=DEBUG, docs_url="/api/docs/", title="Checkbox challenge")
 

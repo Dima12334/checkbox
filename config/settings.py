@@ -19,9 +19,8 @@ DATABASE_URL = (
 
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
-ACCESS_TOKEN_EXPIRE_MINUTES: int = (
-    60 * 24 * 30
-)  # 60 minutes * 24 hours * 30 days = 30 days
+# 60 minutes * 24 hours * 30 days = 30 days
+ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30
 JWT_ALGORITHM = "HS256"
 
 
