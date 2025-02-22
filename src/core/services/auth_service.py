@@ -8,12 +8,15 @@ from src.core.schemas.auth_schemas import SignUpSchema, SignInSchema, JWTTokenSc
 from src.core.services.base_service import BaseService
 from src.core.utils.jwt import create_jwt
 from src.core.utils.password import get_password_hash, verify_password
+from src.users.models import User
 
 
 class AuthService(BaseService):
     repo = UserRepository()
 
-    async def sign_in(self, user_info: SignInSchema, db: AsyncSession):
+    async def sign_in(
+        self, user_info: SignInSchema, db: AsyncSession
+    ) -> JWTTokenSchema:
         user = await self.repo.get_by_email(user_info.email, db)
         if not user:
             raise InvalidUsernameOrPasswordException()
@@ -25,7 +28,7 @@ class AuthService(BaseService):
         access_token = await create_jwt(user=user)
         return JWTTokenSchema(access_token=access_token)
 
-    async def sign_up(self, user_info: SignUpSchema, db: AsyncSession):
+    async def sign_up(self, user_info: SignUpSchema, db: AsyncSession) -> User:
         existed_user = await self.repo.get_by_email(user_info.email, db)
         if existed_user:
             raise ObjectAlreadyExistsException()

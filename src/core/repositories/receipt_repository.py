@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List, Sequence
 from uuid import UUID
 
 from sqlalchemy import select
@@ -26,7 +26,9 @@ class ReceiptRepository(BaseRepository):
 
         return instance
 
-    async def get_list_receipts(self, user_id: UUID, db: AsyncSession):
+    async def get_list_receipts(
+        self, user_id: UUID, db: AsyncSession
+    ) -> Sequence[Receipt]:
         get_list_query = (
             select(Receipt)
             .options(selectinload(Receipt.user), selectinload(Receipt.products))

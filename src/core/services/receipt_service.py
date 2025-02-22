@@ -1,3 +1,4 @@
+from typing import List
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,7 +23,7 @@ class ReceiptService(BaseService):
 
     async def create(
         self, receipt_info: ReceiptCreateInSchema, user: User, db: AsyncSession
-    ):
+    ) -> ReceiptReadSchema:
         products = [
             ReceiptProductReadSchema(
                 name=product.name,
@@ -67,7 +68,7 @@ class ReceiptService(BaseService):
 
     async def get_receipt_by_id_and_user_id(
         self, object_id: UUID | str, user: User, db: AsyncSession
-    ):
+    ) -> ReceiptReadSchema:
         receipt = await self.repo.get_receipt_by_id_and_user_id(
             object_id=object_id, user_id=user.id, db=db
         )
@@ -82,7 +83,9 @@ class ReceiptService(BaseService):
         )
         return receipt_schema
 
-    async def get_list_receipts(self, user: User, db: AsyncSession):
+    async def get_list_receipts(
+        self, user: User, db: AsyncSession
+    ) -> List[ReceiptReadSchema]:
         receipts = await self.repo.get_list_receipts(user_id=user.id, db=db)
         receipt_schemas = [
             ReceiptReadSchema(

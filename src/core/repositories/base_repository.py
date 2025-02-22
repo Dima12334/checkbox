@@ -1,4 +1,4 @@
-from typing import TypeVar
+from typing import TypeVar, Sequence
 from uuid import UUID
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -13,7 +13,7 @@ PydanticModelType = TypeVar("PydanticModelType", bound=BaseModel)
 class BaseRepository:
     model: ModelType
 
-    async def create(self, schema: PydanticModelType, db: AsyncSession):
+    async def create(self, schema: PydanticModelType, db: AsyncSession) -> ModelType:
         new_object = self.model(**schema.dict())
 
         db.add(new_object)
@@ -22,7 +22,9 @@ class BaseRepository:
 
         return new_object
 
-    async def create_bulk(self, schemas: list[PydanticModelType], db: AsyncSession):
+    async def create_bulk(
+        self, schemas: list[PydanticModelType], db: AsyncSession
+    ) -> Sequence[ModelType]:
         new_objects = [self.model(**schema.dict()) for schema in schemas]
 
         db.add_all(new_objects)
@@ -37,7 +39,7 @@ class BaseRepository:
 
         return refreshed_new_objects
 
-    async def get_by_id(self, object_id: UUID | str, db: AsyncSession):
+    async def get_by_id(self, object_id: UUID | str, db: AsyncSession) -> ModelType:
         get_instance_query = select(self.model).filter(self.model.id == object_id)
         instance = await db.execute(get_instance_query)
         instance = instance.scalar_one_or_none()
