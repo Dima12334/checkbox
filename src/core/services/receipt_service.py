@@ -3,6 +3,8 @@ from uuid import UUID
 
 from fastapi_pagination import Params, Page
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
+from starlette.exceptions import HTTPException
 
 from src.core.filters.receipt_filters import ReceiptFilter
 from src.core.repositories.receipt_product_repository import ReceiptProductRepository
@@ -75,6 +77,10 @@ class ReceiptService(BaseService):
         receipt = await self.repo.get_receipt_by_id_and_user_id(
             object_id=object_id, user_id=user.id, db=db
         )
+        if not receipt:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Receipt not found"
+            )
         return receipt
 
     async def get_list_receipts(
