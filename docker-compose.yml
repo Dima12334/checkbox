@@ -16,7 +16,6 @@ services:
   app:
     build: .
     container_name: checkbox_app
-    restart: always
     depends_on:
       - db
     ports:

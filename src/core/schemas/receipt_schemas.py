@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import List
 from uuid import UUID
-from pydantic import BaseModel, Field, PositiveInt
+from pydantic import BaseModel, Field, PositiveInt, ConfigDict
 
 from src.core.constants import NUMERIC_MAX_DIGITS, NUMERIC_PLACES
 from src.receipts.constants import ReceiptConstants
@@ -34,8 +34,7 @@ class ReceiptProductReadSchema(BaseModel):
     quantity: PositiveInt
     total: Decimal
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PaymentSchema(BaseModel):
@@ -66,7 +65,7 @@ class ReceiptCreateOutSchema(BaseModel):
         max_digits=NUMERIC_MAX_DIGITS, decimal_places=NUMERIC_PLACES, gt=Decimal(0)
     )
     rest: Decimal = Field(
-        max_digits=NUMERIC_MAX_DIGITS, decimal_places=NUMERIC_PLACES, gte=Decimal(0)
+        max_digits=NUMERIC_MAX_DIGITS, decimal_places=NUMERIC_PLACES, ge=Decimal(0)
     )
     total: Decimal = Field(
         max_digits=NUMERIC_MAX_DIGITS, decimal_places=NUMERIC_PLACES, gt=Decimal(0)

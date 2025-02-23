@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from src.core.filters.receipt_filters import ReceiptFilter
 from src.core.repositories.base_repository import BaseRepository
 from src.receipts.models import Receipt
 
@@ -27,15 +28,15 @@ class ReceiptRepository(BaseRepository):
         return instance
 
     async def get_list_receipts(
-        self, user_id: UUID, db: AsyncSession
+        self, user_id: UUID, receipt_filter: ReceiptFilter, db: AsyncSession
     ) -> Sequence[Receipt]:
-        get_list_query = (
+        get_filtered_list_query = receipt_filter.filter(
             select(Receipt)
             .options(selectinload(Receipt.user), selectinload(Receipt.products))
             .filter(Receipt.user_id == user_id)
         )
 
-        instances = await db.execute(get_list_query)
+        instances = await db.execute(get_filtered_list_query)
         instances = instances.scalars().all()
 
         return instances

@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class UserReadSchema(BaseModel):
@@ -10,5 +10,4 @@ class UserReadSchema(BaseModel):
     last_name: str
     company_name: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

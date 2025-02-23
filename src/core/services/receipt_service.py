@@ -3,6 +3,7 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.filters.receipt_filters import ReceiptFilter
 from src.core.repositories.receipt_product_repository import ReceiptProductRepository
 from src.core.repositories.receipt_repository import ReceiptRepository
 from src.core.schemas.receipt_schemas import (
@@ -84,9 +85,11 @@ class ReceiptService(BaseService):
         return receipt_schema
 
     async def get_list_receipts(
-        self, user: User, db: AsyncSession
+        self, user: User, receipt_filter: ReceiptFilter, db: AsyncSession
     ) -> List[ReceiptReadSchema]:
-        receipts = await self.repo.get_list_receipts(user_id=user.id, db=db)
+        receipts = await self.repo.get_list_receipts(
+            user_id=user.id, receipt_filter=receipt_filter, db=db
+        )
         receipt_schemas = [
             ReceiptReadSchema(
                 id=receipt.id,
