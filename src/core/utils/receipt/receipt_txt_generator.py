@@ -31,8 +31,10 @@ class ReceiptTxtGenerator:
         self.product_separator = "-" * self.line_length
 
     def format_product_line(self, product: ReceiptProduct) -> str:
-        product_quantity_line = f"{product.quantity} x {product.price:,.2f}"
-        product_total = f"{product.total:,.2f}"
+        product_quantity_line = f"{product.quantity} x {product.price:,.2f}".replace(
+            ",", " "
+        )
+        product_total = f"{product.total:,.2f}".replace(",", " ")
 
         # Combine product name and price for proper wrapping.
         # After wrapping, replace product_total with an empty string
@@ -52,7 +54,7 @@ class ReceiptTxtGenerator:
 
     def format_summary_line(self, label: str, amount: Decimal) -> str:
         """Formats a summary line (e.g., total, payment type, rest)."""
-        amount_str = f"{amount:,.2f}"
+        amount_str = f"{amount:,.2f}".replace(",", " ")
         return f"{label:<{self.line_length - len(amount_str)}}{amount_str}"
 
     async def generate(self) -> str:
