@@ -15,9 +15,9 @@ from src.core.schemas.receipt_schemas import (
     ReceiptProductReadSchema,
     ReceiptProductCreateOutSchema,
     ReceiptReadSchema,
-    PaymentSchema,
 )
 from src.core.services.base_service import BaseService
+from src.core.utils.receipt.receipt_txt_generator import ReceiptTxtGenerator
 from src.receipts.models import Receipt
 from src.users.models import User
 
@@ -109,3 +109,17 @@ class ReceiptService(BaseService):
             pages=paginated_data.pages,
         )
         return paginated_data
+
+    async def print_receipt(
+        self, object_id: UUID | str, line_length: int, db: AsyncSession
+    ) -> str:
+        receipt = await self.repo.get_by_id(object_id=object_id, db=db)
+        if not receipt:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Receipt not found"
+            )
+
+        receipt_txt_generator = ReceiptTxtGenerator(receipt, line_length)
+        receipt_txt = await receipt_txt_generator.generate()
+
+        return receipt_txt

@@ -56,14 +56,16 @@ class ReceiptReadSchema(BaseModel):
     @model_validator(mode="before")
     def fill_payment(cls, values):
         if isinstance(values, dict):
-            values["payment"] = PaymentSchema(
-                type=values.get("payment_type"), amount=values.get("amount")
-            )
+            if not values.get("payment"):
+                values["payment"] = PaymentSchema(
+                    type=values.get("payment_type"), amount=values.get("amount")
+                )
 
         if isinstance(values, Receipt):
-            values.payment = PaymentSchema(
-                type=values.payment_type, amount=values.amount
-            )
+            if not hasattr(values, "payment"):
+                values.payment = PaymentSchema(
+                    type=values.payment_type, amount=values.amount
+                )
 
         return values
 

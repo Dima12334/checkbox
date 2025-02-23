@@ -29,6 +29,20 @@ class ReceiptRepository(BaseRepository):
 
         return instance
 
+    async def get_by_id(
+        self, object_id: UUID | str, db: AsyncSession
+    ) -> Optional[Receipt]:
+        get_instance_query = (
+            select(Receipt)
+            .options(selectinload(Receipt.user), selectinload(Receipt.products))
+            .filter(Receipt.id == object_id)
+        )
+
+        instance = await db.execute(get_instance_query)
+        instance = instance.scalar_one_or_none()
+
+        return instance
+
     async def get_list_receipts(
         self,
         user_id: UUID,
