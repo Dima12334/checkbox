@@ -2,10 +2,11 @@ from datetime import datetime
 from decimal import Decimal
 from typing import List
 from uuid import UUID
-from pydantic import BaseModel, Field, PositiveInt, ConfigDict
+from pydantic import BaseModel, Field, PositiveInt, ConfigDict, model_validator
 
 from src.core.constants import NUMERIC_MAX_DIGITS, NUMERIC_PLACES
 from src.receipts.constants import ReceiptConstants
+from src.receipts.models import Receipt
 
 
 class ReceiptProductCreateInSchema(BaseModel):
@@ -51,6 +52,20 @@ class ReceiptReadSchema(BaseModel):
     total: Decimal
     rest: Decimal
     created_at: datetime
+
+    @model_validator(mode="before")
+    def fill_payment(cls, values):
+        if isinstance(values, dict):
+            values["payment"] = PaymentSchema(
+                type=values.get("payment_type"), amount=values.get("amount")
+            )
+
+        if isinstance(values, Receipt):
+            values.payment = PaymentSchema(
+                type=values.payment_type, amount=values.amount
+            )
+
+        return values
 
 
 class ReceiptCreateInSchema(BaseModel):

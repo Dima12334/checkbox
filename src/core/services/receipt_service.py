@@ -1,6 +1,7 @@
 from typing import List
 from uuid import UUID
 
+from fastapi_pagination import Params, Page
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.filters.receipt_filters import ReceiptFilter
@@ -15,6 +16,7 @@ from src.core.schemas.receipt_schemas import (
     PaymentSchema,
 )
 from src.core.services.base_service import BaseService
+from src.receipts.models import Receipt
 from src.users.models import User
 
 
@@ -69,36 +71,35 @@ class ReceiptService(BaseService):
 
     async def get_receipt_by_id_and_user_id(
         self, object_id: UUID | str, user: User, db: AsyncSession
-    ) -> ReceiptReadSchema:
+    ) -> Receipt:
         receipt = await self.repo.get_receipt_by_id_and_user_id(
             object_id=object_id, user_id=user.id, db=db
         )
-
-        receipt_schema = ReceiptReadSchema(
-            id=receipt.id,
-            products=receipt.products,
-            payment=PaymentSchema(type=receipt.payment_type, amount=receipt.amount),
-            total=receipt.total,
-            rest=receipt.rest,
-            created_at=receipt.created_at,
-        )
-        return receipt_schema
+        return receipt
 
     async def get_list_receipts(
-        self, user: User, receipt_filter: ReceiptFilter, db: AsyncSession
-    ) -> List[ReceiptReadSchema]:
-        receipts = await self.repo.get_list_receipts(
-            user_id=user.id, receipt_filter=receipt_filter, db=db
+        self,
+        user: User,
+        receipt_filter: ReceiptFilter,
+        pagination_params: Params,
+        db: AsyncSession,
+    ) -> Page[ReceiptReadSchema]:
+        paginated_data = await self.repo.get_list_receipts(
+            user_id=user.id,
+            receipt_filter=receipt_filter,
+            pagination_params=pagination_params,
+            db=db,
         )
-        receipt_schemas = [
-            ReceiptReadSchema(
-                id=receipt.id,
-                products=receipt.products,
-                payment=PaymentSchema(type=receipt.payment_type, amount=receipt.amount),
-                total=receipt.total,
-                rest=receipt.rest,
-                created_at=receipt.created_at,
-            )
-            for receipt in receipts
+
+        modified_items = [
+            ReceiptReadSchema.model_validate(receipt)
+            for receipt in paginated_data.items
         ]
-        return receipt_schemas
+        paginated_data = Page[ReceiptReadSchema](
+            items=modified_items,
+            total=paginated_data.total,
+            page=paginated_data.page,
+            size=paginated_data.size,
+            pages=paginated_data.pages,
+        )
+        return paginated_data

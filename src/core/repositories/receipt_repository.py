@@ -1,6 +1,8 @@
-from typing import Optional, List, Sequence
+from typing import Optional
 from uuid import UUID
 
+from fastapi_pagination import Params, Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -28,15 +30,19 @@ class ReceiptRepository(BaseRepository):
         return instance
 
     async def get_list_receipts(
-        self, user_id: UUID, receipt_filter: ReceiptFilter, db: AsyncSession
-    ) -> Sequence[Receipt]:
+        self,
+        user_id: UUID,
+        receipt_filter: ReceiptFilter,
+        pagination_params: Params,
+        db: AsyncSession,
+    ) -> Page[Receipt]:
         get_filtered_list_query = receipt_filter.filter(
             select(Receipt)
             .options(selectinload(Receipt.user), selectinload(Receipt.products))
             .filter(Receipt.user_id == user_id)
         )
+        paginated_data = await paginate(
+            db, get_filtered_list_query, params=pagination_params
+        )
 
-        instances = await db.execute(get_filtered_list_query)
-        instances = instances.scalars().all()
-
-        return instances
+        return paginated_data

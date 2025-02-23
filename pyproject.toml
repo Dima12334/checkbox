@@ -21,6 +21,7 @@ python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 bcrypt = "4.0.1"
 passlib = "^1.7.4"
 fastapi-filter = "^2.0.1"
+fastapi-pagination = "^0.12.34"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.2.1"

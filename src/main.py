@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_pagination import add_pagination
 
 from config.settings import (
     ALLOWED_HOSTS,
@@ -11,6 +12,7 @@ from config.settings import (
 from src.api.v1.v1_routers import api_v1_router
 
 app = FastAPI(debug=DEBUG, docs_url="/api/docs/", title="Checkbox challenge")
+add_pagination(app)
 
 
 app.add_middleware(

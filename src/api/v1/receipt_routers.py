@@ -1,7 +1,7 @@
-from typing import List
 from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi_filter import FilterDepends
+from fastapi_pagination import Params, Page
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config.database import get_async_session
@@ -24,15 +24,19 @@ async def create_receipt(
     return await receipt_servie.create(receipt_info=schema, user=current_user, db=db)
 
 
-@receipt_router.get("/", response_model=List[ReceiptReadSchema])
+@receipt_router.get("/", response_model=Page[ReceiptReadSchema])
 async def get_list_receipts(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_session),
     receipt_filter: ReceiptFilter = FilterDepends(ReceiptFilter),
+    pagination_params: Params = Depends(),
 ):
     receipt_servie = ReceiptService()
     return await receipt_servie.get_list_receipts(
-        user=current_user, receipt_filter=receipt_filter, db=db
+        user=current_user,
+        receipt_filter=receipt_filter,
+        pagination_params=pagination_params,
+        db=db,
     )
 
 
