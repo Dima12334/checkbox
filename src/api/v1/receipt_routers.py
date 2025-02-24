@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, Query
 from fastapi_filter import FilterDepends
 from fastapi_pagination import Params, Page
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
 from starlette.responses import Response
 from config.database import get_async_session
 from src.core.dependencies import get_current_user
@@ -15,12 +16,17 @@ from src.users.models import User
 receipt_router = APIRouter()
 
 
-@receipt_router.post("/", response_model=ReceiptReadSchema)
+@receipt_router.post(
+    "/", response_model=ReceiptReadSchema, status_code=status.HTTP_201_CREATED
+)
 async def create_receipt(
     schema: ReceiptCreateInSchema,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_session),
 ):
+    """
+    **Authorization**: Requires `Bearer <JWT Token>` in the `Authorization` header.
+    """
     receipt_servie = ReceiptService()
     return await receipt_servie.create(receipt_info=schema, user=current_user, db=db)
 
@@ -32,6 +38,9 @@ async def get_list_receipts(
     receipt_filter: ReceiptFilter = FilterDepends(ReceiptFilter),
     pagination_params: Params = Depends(),
 ):
+    """
+    **Authorization**: Requires `Bearer <JWT Token>` in the `Authorization` header.
+    """
     receipt_servie = ReceiptService()
     return await receipt_servie.get_list_receipts(
         user=current_user,
@@ -47,6 +56,9 @@ async def retrieve_receipt(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_session),
 ):
+    """
+    **Authorization**: Requires `Bearer <JWT Token>` in the `Authorization` header.
+    """
     receipt_servie = ReceiptService()
     return await receipt_servie.get_receipt_by_id_and_user_id(
         object_id=receipt_id, user=current_user, db=db
@@ -63,6 +75,9 @@ async def print_receipt(
     ),
     db: AsyncSession = Depends(get_async_session),
 ) -> Response:
+    """
+    **Authorization**: Not required.
+    """
     receipt_servie = ReceiptService()
     receipt_txt = await receipt_servie.print_receipt(
         object_id=receipt_id, line_length=line_length, db=db
