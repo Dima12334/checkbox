@@ -53,6 +53,8 @@ class ReceiptReadSchema(BaseModel):
     rest: Decimal
     created_at: datetime
 
+    model_config = ConfigDict(from_attributes=True)
+
     @model_validator(mode="before")
     def fill_payment(cls, values):
         if isinstance(values, dict):

@@ -8,28 +8,27 @@ from src.users.models import User
 
 
 @pytest.mark.asyncio(loop_scope="session")
-async def test_sign_up(user, client: AsyncClient, db_session: AsyncSession):
-    user["email"] = "test@test.com"
-    response = await client.post("api/v1/auth/sign-up", json=user)
+async def test_sign_up(user_data, client: AsyncClient, db_session: AsyncSession):
+    response = await client.post("api/v1/auth/sign-up", json=user_data)
 
     assert response.status_code == status.HTTP_201_CREATED
-    assert response.json()["company_name"] == user["company_name"]
-    assert response.json()["email"] == "test@test.com"
+    assert response.json()["company_name"] == user_data["company_name"]
+    assert response.json()["email"] == user_data["email"]
 
-    query = select(User).filter_by(email=user["email"])
+    query = select(User).filter_by(email=user_data["email"])
     result = await db_session.execute(query)
     created_user = result.scalar_one_or_none()
 
     assert created_user is not None
-    assert created_user.email == "test@test.com"
-    assert created_user.company_name == user["company_name"]
+    assert created_user.email == user_data["email"]
+    assert created_user.company_name == user_data["company_name"]
 
 
 @pytest.mark.asyncio(loop_scope="session")
 async def test_sign_up_user_already_exists(
-    user, client: AsyncClient, db_session: AsyncSession
+    user, user_data, client: AsyncClient, db_session: AsyncSession
 ):
-    response = await client.post("api/v1/auth/sign-up", json=user)
+    response = await client.post("api/v1/auth/sign-up", json=user_data)
 
     assert response.status_code == status.HTTP_409_CONFLICT
     assert response.json()["detail"] == "Object already exists."
