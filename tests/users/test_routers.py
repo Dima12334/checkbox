@@ -46,5 +46,5 @@ async def test_me_wrong_token(user, client: AsyncClient):
         "api/v1/users/me", headers={"Authorization": f"Bearer {access_token}"}
     )
 
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == "Object not found"
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json()["detail"] == "Invalid token."

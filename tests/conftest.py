@@ -2,7 +2,7 @@ import asyncio
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from config.database import get_async_session
+from config.database import get_async_session, Base
 from config.settings import DATABASE_TEST_URL
 from src.main import app
 
@@ -23,14 +23,23 @@ async def event_loop():
     loop.close()
 
 
+@pytest_asyncio.fixture(scope="session", autouse=True)
+async def create_tables():
+    async with async_test_engine.begin() as connection:
+        await connection.run_sync(Base.metadata.create_all)
+    yield
+    async with async_test_engine.begin() as connection:
+        await connection.run_sync(Base.metadata.drop_all)
+
+
 @pytest_asyncio.fixture(loop_scope="session")
 async def db_session():
     async with async_test_engine.connect() as connection:
-        trans = await connection.begin()
+        transaction = await connection.begin()
         async_session = async_sessionmaker(bind=connection, expire_on_commit=False)
         async with async_session() as session:
             yield session
-        await trans.rollback()
+        await transaction.rollback()
 
 
 @pytest_asyncio.fixture(loop_scope="session")
@@ -46,5 +55,5 @@ async def override_get_async_session(db_session):
 @pytest_asyncio.fixture(loop_scope="session")
 async def client(override_get_async_session):
     transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        yield ac
+    async with AsyncClient(transport=transport, base_url="http://test") as async_client:
+        yield async_client

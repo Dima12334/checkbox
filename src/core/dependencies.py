@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from config.database import get_async_session
 from src.core.exceptions import InvalidTokenException, ExpiredTokenException
+from src.core.repositories.user_repository import UserRepository
 from src.core.schemas.auth_schemas import JWTTokenPayloadSchema
-from src.core.services.user_service import UserService
 from src.core.utils.jwt import decode_jwt
 from src.users.models import User
 
@@ -25,6 +25,8 @@ async def get_current_user(
     if payload.exp.replace(tzinfo=timezone.utc) <= datetime.now(timezone.utc):
         raise ExpiredTokenException()
 
-    user_service = UserService()
-    current_user = await user_service.get_by_id(object_id=payload.id, db=db)
+    user_repository = UserRepository()
+    current_user = await user_repository.get_by_id(object_id=payload.id, db=db)
+    if not current_user:
+        raise InvalidTokenException()
     return current_user
