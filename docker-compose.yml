@@ -9,15 +9,28 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
     ports:
-      - ${DB_PORT}:${DB_PORT}
+      - ${DB_HOST_PORT}:${DB_PORT}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  db_test:
+    image: postgres:14
+    container_name: checkbox_postgres_test
+    environment:
+      - POSTGRES_USER=${DB_TEST_USER}
+      - POSTGRES_PASSWORD=${DB_TEST_PASSWORD}
+      - POSTGRES_DB=${DB_TEST_NAME}
+    ports:
+      - ${DB_TEST_HOST_PORT}:${DB_TEST_PORT}
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
 
   app:
     build: .
     container_name: checkbox_app
     depends_on:
       - db
+      - db_test
     ports:
       - ${APP_PORT}:${APP_PORT}
     volumes:
@@ -25,3 +38,4 @@ services:
 
 volumes:
   postgres_data:
+  postgres_test_data:

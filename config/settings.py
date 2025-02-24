@@ -18,6 +18,14 @@ DATABASE_URL = (
 )
 
 
+DB_TEST_HOST = os.environ.get("DB_TEST_HOST")
+DB_TEST_PORT = os.environ.get("DB_TEST_PORT")
+DB_TEST_NAME = os.environ.get("DB_TEST_NAME")
+DB_TEST_USER = os.environ.get("DB_TEST_USER")
+DB_TEST_PASSWORD = os.environ.get("DB_TEST_PASSWORD")
+DATABASE_TEST_URL = f"postgresql+asyncpg://{DB_TEST_USER}:{DB_TEST_PASSWORD}@{DB_TEST_HOST}:{DB_TEST_PORT}/{DB_TEST_NAME}"
+
+
 SECRET_KEY = os.environ.get("SECRET_KEY")
 # 60 minutes * 24 hours * 30 days = 30 days
 ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30

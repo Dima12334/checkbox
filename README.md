@@ -22,6 +22,10 @@ https://github.com/Dima12334/checkbox.git
 make up-with-build
 ```
 3. Done. Use the App.
+4. Optionally you can run tests:
+```
+make test
+```
 
 ### Commands:
  - Build and up docker containers:
@@ -35,4 +39,8 @@ make up
  - Down docker containers:
 ```
 make down
+```
+ - Run tests:
+```
+make test
 ```
