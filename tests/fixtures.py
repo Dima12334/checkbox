@@ -10,7 +10,10 @@ async def user(client):
         "email": "email@test.com",
         "password": "password",
     }
-    await client.post("/api/v1/auth/sign-up", json=user)
+    response = await client.post("/api/v1/auth/sign-up", json=user)
+    data = response.json()
+    user["id"] = data["id"]
+
     return user
 
 

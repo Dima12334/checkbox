@@ -27,6 +27,4 @@ async def get_current_user(
 
     user_service = UserService()
     current_user = await user_service.get_by_id(object_id=payload.id, db=db)
-    if not current_user:
-        raise InvalidTokenException()
     return current_user
