@@ -17,7 +17,17 @@ receipt_router = APIRouter()
 
 
 @receipt_router.post(
-    "/", response_model=ReceiptReadSchema, status_code=status.HTTP_201_CREATED
+    "/",
+    response_model=ReceiptReadSchema,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        401: {
+            "description": "Unauthorized - Invalid or expired token",
+            "content": {
+                "application/json": {"example": {"detail": "Token has expired."}}
+            },
+        },
+    },
 )
 async def create_receipt(
     schema: ReceiptCreateInSchema,
@@ -31,7 +41,18 @@ async def create_receipt(
     return await receipt_servie.create(receipt_info=schema, user=current_user, db=db)
 
 
-@receipt_router.get("/", response_model=Page[ReceiptReadSchema])
+@receipt_router.get(
+    "/",
+    response_model=Page[ReceiptReadSchema],
+    responses={
+        401: {
+            "description": "Unauthorized - Invalid or expired token",
+            "content": {
+                "application/json": {"example": {"detail": "Token has expired."}}
+            },
+        },
+    },
+)
 async def get_list_receipts(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_session),
@@ -50,7 +71,24 @@ async def get_list_receipts(
     )
 
 
-@receipt_router.get("/{receipt_id}", response_model=ReceiptReadSchema)
+@receipt_router.get(
+    "/{receipt_id}",
+    response_model=ReceiptReadSchema,
+    responses={
+        401: {
+            "description": "Unauthorized - Invalid or expired token",
+            "content": {
+                "application/json": {"example": {"detail": "Token has expired."}}
+            },
+        },
+        404: {
+            "description": "Receipt not found",
+            "content": {
+                "application/json": {"example": {"detail": "Receipt not found"}}
+            },
+        },
+    },
+)
 async def retrieve_receipt(
     receipt_id: UUID,
     current_user: User = Depends(get_current_user),
@@ -65,7 +103,18 @@ async def retrieve_receipt(
     )
 
 
-@receipt_router.get("/{receipt_id}/print", response_class=Response)
+@receipt_router.get(
+    "/{receipt_id}/print",
+    response_class=Response,
+    responses={
+        404: {
+            "description": "Receipt not found",
+            "content": {
+                "application/json": {"example": {"detail": "Receipt not found"}}
+            },
+        },
+    },
+)
 async def print_receipt(
     receipt_id: UUID,
     line_length: int = Query(

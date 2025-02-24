@@ -11,7 +11,17 @@ auth_router = APIRouter()
 
 
 @auth_router.post(
-    "/sign-up", response_model=UserReadSchema, status_code=status.HTTP_201_CREATED
+    "/sign-up",
+    response_model=UserReadSchema,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        409: {
+            "description": "Conflict - User already exists",
+            "content": {
+                "application/json": {"example": {"detail": "Object already exists."}}
+            },
+        },
+    },
 )
 async def sign_up(schema: SignUpSchema, db: AsyncSession = Depends(get_async_session)):
     auth_servie = AuthService()
@@ -19,7 +29,19 @@ async def sign_up(schema: SignUpSchema, db: AsyncSession = Depends(get_async_ses
 
 
 @auth_router.post(
-    "/sign-in", response_model=JWTTokenSchema, status_code=status.HTTP_200_OK
+    "/sign-in",
+    response_model=JWTTokenSchema,
+    status_code=status.HTTP_200_OK,
+    responses={
+        401: {
+            "description": "Unauthorized - Invalid email or password.",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Invalid email or password."}
+                }
+            },
+        },
+    },
 )
 async def sign_in(schema: SignInSchema, db: AsyncSession = Depends(get_async_session)):
     auth_servie = AuthService()
