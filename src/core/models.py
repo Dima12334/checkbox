@@ -17,4 +17,4 @@ class BaseModel(Base):
         unique=True,
         nullable=False,
     )
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)

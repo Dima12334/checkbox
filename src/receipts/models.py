@@ -29,10 +29,10 @@ class Receipt(BaseModel):
     user_id = Column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    payment_type = Column(Enum(ReceiptConstants.PaymentTypeEnum), nullable=False)
+    payment_type = Column(Enum(ReceiptConstants.PaymentTypeEnum), nullable=False, index=True)
     amount = Column(Numeric(NUMERIC_MAX_DIGITS, NUMERIC_PLACES), nullable=False)
     rest = Column(Numeric(NUMERIC_MAX_DIGITS, NUMERIC_PLACES), nullable=False)
-    total = Column(Numeric(NUMERIC_MAX_DIGITS, NUMERIC_PLACES), nullable=False)
+    total = Column(Numeric(NUMERIC_MAX_DIGITS, NUMERIC_PLACES), nullable=False, index=True)
 
     products = relationship("ReceiptProduct", back_populates="receipt")
     user = relationship("User", back_populates="receipts")
